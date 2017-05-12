@@ -1,0 +1,10 @@
+{
+  "name": "api-nepgo",
+  "version": "0.1",
+  "description": "",
+  "main": "server.js",
+  "author": "Prataksha Gurung | g3prataksha@gmail.com",
+  "dependencies": {
+    "express": "^4.15.2"
+  }
+}

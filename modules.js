@@ -17,6 +17,8 @@ function Modules() {
     this.cities = [];
     this.districts = [];
     this.roles = ["academia", "company", "experts", "organization", "volunteer"];
+    this.admin = "admin";
+    this.super_admin = "super admin";
     this.locales = ["en", "np"];
     this.sectors = ["Education", "Engineering", "Health services", "Sports", "Social services"];
     this.objectIdRegex = /^[0-9a-fA-F]{24}$/;
@@ -57,6 +59,50 @@ Modules.prototype.sendImage = function(res, image) {
     });
 };
 
+Modules.prototype.fieldsNotAllowed = function(allowedKeys, body) {
+    let notAllowed = [];
+    for(var key in body) {
+        if(allowedKeys.indexOf(key) < 0) notAllowed.push(key);
+    }
+    return notAllowed;
+};
+
+Modules.prototype.checkInvalidFields = function(body) {
+    let invalidFields = [], self = this;
+    for(var key in body) {
+        switch (key) {
+            case "name" || "phone" || "postal" || "address" || "image" || "profession" || "extra_info" || "password" || "confirm_password":
+                if(self.getType(body[key]) !== "string") invalidFields.push(key);
+                break;
+            case "role":
+                if(self.roles.indexOf(body[key]) < 0) invalidFields.push(key);
+                break;
+            case "email":
+                if(!self.validator.isEmail(body[key])) invalidFields.push(key);
+                break;
+            case "name":
+                if(self.getType(body[key]) !== "string") invalidFields.push(key);
+                break;
+            case "sectors":
+                body[key].forEach(function(val) {
+                    if(invalidFields.indexOf(key) < 0) {
+                        if(self.sectors.indexOf(val) < 0) invalidFields.push(key);
+                    }
+                });
+                break;
+            case "experiences" || "skills" || "educations":
+                if(self.getType(body[key]) !== "array") invalidFields.push(key);
+                break;
+            case "locale":
+                if(self.locales.indexOf(body[key]) < 0) invalidFields.push(key);
+                break;
+            default:
+                console.log("Invalid or not allowed fields detected, key:", key, "value:", body[key]);
+                break;
+        }
+    }
+    return invalidFields;
+}
 
 Modules.prototype.isValidDate = function(date) {
     let valid = false;
@@ -67,6 +113,10 @@ Modules.prototype.isValidDate = function(date) {
         }
     }
     return valid;
+};
+
+Modules.prototype.getType = function(obj) {
+    return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 };
 
 Modules.prototype.checkPassword = function(credential, password, cb) {
@@ -82,6 +132,6 @@ Modules.prototype.checkPassword = function(credential, password, cb) {
     else cb({
         err: "Incorrect email/password"
     });
-}
+};
 
 module.exports = new Modules();

@@ -22,7 +22,8 @@ var userSchema = new Schema({
 	educations: [String],
 	
 	locale: String,
-	extra_info: String
+	extra_info: String,
+	level: String //admin, moderator, user
 });
 
 var user = mongoose.model('user', userSchema);

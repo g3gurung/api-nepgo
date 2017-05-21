@@ -7,7 +7,8 @@ var credentialSchema = new Schema({
 	updated: {type: Date, default: Date.now},
 	user: {
 		type: Schema.ObjectId, required: true
-	}
+	},
+	reset: Schema.ObjectId
 });
 
 module.exports = mongoose.model('credential', credentialSchema);

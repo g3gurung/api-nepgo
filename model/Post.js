@@ -7,6 +7,7 @@ var postSchema = new Schema({
 	title: String,
 	description: String,
 	sector: String,
+	images: [String],
 	user: {
 	    type: Schema.ObjectId,
 	    ref: 'user',
@@ -34,7 +35,8 @@ var postSchema = new Schema({
 	    type: Schema.ObjectId,
 	    ref: 'user',
 	    require: true
-	}]
+	}],
+	approved: {type: Boolean, default: false}
 });
 
 var post = mongoose.model('post', postSchema);

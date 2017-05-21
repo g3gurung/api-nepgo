@@ -7,7 +7,9 @@ function Modules() {
     this.bcrypt = require('bcrypt-nodejs');
     this.jwt = require('jsonwebtoken');
     this.morgan = require('morgan');
-
+    this.mongoose = require('mongoose');
+    this.aws = require('aws-sdk');
+    
     //models
     this.User = require('./models/User');
     this.Credential = require('./models/Credential');
@@ -18,11 +20,13 @@ function Modules() {
     this.districts = [];
     this.roles = ["academia", "company", "experts", "organization", "volunteer"];
     this.admin = "admin";
-    this.super_admin = "super admin";
+    this.moderator = "moderator";
+    this.user = "user";
     this.locales = ["en", "np"];
     this.sectors = ["Education", "Engineering", "Health services", "Sports", "Social services"];
     this.objectIdRegex = /^[0-9a-fA-F]{24}$/;
     this.secret = "Nepgo services";
+    this.s3Bucket = "";
 }
 
 Modules.prototype.isObjValid = function(obj, exception_keys) {
@@ -40,12 +44,10 @@ Modules.prototype.isObjValid = function(obj, exception_keys) {
 };
 
 Modules.prototype.sendResponse = function(res, json_data) {
-    //res.set(this.contentType);
     res.json(json_data);
 };
 
 Modules.prototype.sendError = function(res, json_error, status) {
-    res.set(this.contentType);
     res.status(status).json(json_error);
 };
 
@@ -71,7 +73,7 @@ Modules.prototype.checkInvalidFields = function(body) {
     let invalidFields = [], self = this;
     for(var key in body) {
         switch (key) {
-            case "name" || "phone" || "postal" || "address" || "image" || "profession" || "extra_info" || "password" || "confirm_password":
+            case "name" || "phone" || "postal" || "address" || "image" || "profession" || "extra_info" || "password" || "confirm_password" || "title" || "description" || "sector" || "starts_at" || "ends_at":
                 if(self.getType(body[key]) !== "string") invalidFields.push(key);
                 break;
             case "role":
@@ -84,17 +86,27 @@ Modules.prototype.checkInvalidFields = function(body) {
                 if(self.getType(body[key]) !== "string") invalidFields.push(key);
                 break;
             case "sectors":
-                body[key].forEach(function(val) {
+                if(self.getType(body[key]) === "array") body[key].forEach(function(val) {
                     if(invalidFields.indexOf(key) < 0) {
                         if(self.sectors.indexOf(val) < 0) invalidFields.push(key);
                     }
-                });
+                }); else invalidFields.push(key);
                 break;
-            case "experiences" || "skills" || "educations":
+            case "experiences" || "skills" || "educations" || "images":
                 if(self.getType(body[key]) !== "array") invalidFields.push(key);
                 break;
             case "locale":
                 if(self.locales.indexOf(body[key]) < 0) invalidFields.push(key);
+                break;
+            case "roles":
+                if(self.getType(body[key]) === "array") body[key].forEach(function(val) {
+                    if(invalidFields.indexOf(key) < 0) {
+                        if(self.roles.indexOf(val) < 0) invalidFields.push(key);
+                    }
+                }); else invalidFields.push(key);
+                break;
+            case "sector":
+                if(self.sectors.indexOf(body[key]) < 0) invalidFields.push(key);
                 break;
             default:
                 console.log("Invalid or not allowed fields detected, key:", key, "value:", body[key]);
@@ -102,6 +114,17 @@ Modules.prototype.checkInvalidFields = function(body) {
         }
     }
     return invalidFields;
+}
+
+Modules.prototype.isObjEmpty = function(obj, allowedFields) {
+    let empty = true;
+    for(var i=0; i<allowedFields.length; i++) {
+        if(obj[allowedFields[i]]) {
+            empty = false; break;
+        }
+    }
+    
+    return empty;
 }
 
 Modules.prototype.isValidDate = function(date) {
@@ -120,7 +143,9 @@ Modules.prototype.getType = function(obj) {
 };
 
 Modules.prototype.checkPassword = function(credential, password, cb) {
-    if (credential) this.bcrypt.compare(password, credential.password, function(err, result) {
+    const self = this;
+    
+    if (credential) self.bcrypt.compare(password, credential.password, function(err, result) {
         if (err) throw err;
         if (result) {
             cb(null, result);
@@ -132,6 +157,33 @@ Modules.prototype.checkPassword = function(credential, password, cb) {
     else cb({
         err: "Incorrect email/password"
     });
+};
+
+Modules.prototype.deleteFiles = function(files, cb) {
+    const self = this, params = {
+        Bucket: self.s3Bucket,
+        Delete: { // required
+            Objects: [
+            ]
+        }
+    };
+    
+    let valid = false;
+    
+    files.forEach(function(image) {
+        let slice = image.split('/'), 
+            key = slice.pop();
+        if(self.objectIdRegex.match(key)) {
+            params.Delete.Objects.push({Key: key});
+            valid = true;
+        } else console.log("Invalid key for s3 deleteObject", key);
+    });
+    
+    if(valid) (new self.aws.S3()).deleteObjects(params, function(err, data) {
+        if(err) throw err; // an error occurred
+        if(cb) cb(null, data); // successful response
+    }); else if(cb) cb("Invalid files: "+JSON.stringify(files));
+    else console.log("Invalid files: "+JSON.stringify(files))
 };
 
 module.exports = new Modules();

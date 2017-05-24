@@ -47,12 +47,25 @@ app.use(modules.morgan('dev'));
 
 app.set('port', (process.env.PORT || 5000));
 
+app.get('/country', function(req, res) {
+  res.json(modules.countries.sort());
+});
+
+app.get('/city', function(req, res) {
+  res.json(modules.cities.sort());
+});
+
+app.get('/district', function(req, res) {
+  res.json(modules.districts.sort());
+});
+
 app.post('/login', api.user.login);
 
 app.post('/user', middleware.soft_authenticate, api.user.post);
 app.get('/user', middleware.soft_authenticate, api.user.get);
 app.put('/user/:user_id', middleware.authenticate, api.user.put);
 app.delete('/user/:user_id', middleware.authenticate, api.user.delete);
+app.get('/user/:user_id/post', middleware.authenticate, api.user.getPost);
 
 app.put('/user/:user_id/password', middleware.authenticate, api.user.changePassword);
 app.get('/reset', api.user.getReset);

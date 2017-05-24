@@ -3,12 +3,22 @@
 const modules = require("./../modules");
 
 const post = {},
-    allowedFields = ["title", "description", "sector", "starts_at", "ends_at", "roles", "images"];
+    allowedFields = ["title", "description", "sector", "starts_at", "ends_at", "roles", "images", "country", "city", "district"];
 
 post.get = (req, res) => {
-    let modelIns;
-    if(req.user) modelIns = modules.Post.find({approved: true}).populate([{path: "user", options: {lean: true}}, {path: "likes", options: {lean: true}}, {path: "seen_by", options: {lean: true}}, {path: "comments.user", options: {lean: true}}]).lean()
-    else modelIns = modules.Post.find({approved: true}).populate([{path: "user", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "likes", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "seen_by", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "comments.user", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}]).lean()
+    let modelIns, query = {approved: true};
+    
+    if(req.query.role) query.roles = req.query.role;
+    if(req.query.sector) query.sectors =  req.query.sector;
+    if(req.query.country) query.country = req.query.country;
+    if(req.query.city) query.city = req.query.city;
+    if(req.query.district) query.district = req.query.district;
+    
+    if(!(query.roles || query.sectors)) return modules.sendError(res, {err: "Bad request. 'role' or/and 'sector' is needed"}, 400);
+    
+    modelIns = modules.Post.find(query);
+    if(req.user) modelIns = modelIns.populate([{path: "user", options: {lean: true}}, {path: "likes", options: {lean: true}}, {path: "seen_by", options: {lean: true}}, {path: "comments.user", options: {lean: true}}]).sort({created_at: -1}).lean()
+    else modelIns = modelIns.populate([{path: "user", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "likes", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "seen_by", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "comments.user", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}]).sort({created_at: -1}).lean()
 
     modelIns.exec(function(err, posts) {
         if(err) throw err; 
@@ -17,7 +27,7 @@ post.get = (req, res) => {
 };
 
 post.post = (req, res) => {
-    const body = req.body ? req.body : {};
+    let body = req.body ? req.body : {};
     
     const fieldsNotAllowed = modules.fieldsNotAllowed(allowedFields, body);
     
@@ -28,6 +38,7 @@ post.post = (req, res) => {
     if(invalidFields.length) return modules.sendError(res, {err: "Bad request. Some fields are invalid", invalid_fields: invalidFields}, 400);
     
     body.user = req.user._id;
+    body = modules.parseArrayDuplicate(body);
     if(body.description) new modules.Post(body).save(function(err, post) {
         if(err) throw err;
         modules.sendResponse(res, post.toObject());
@@ -38,7 +49,7 @@ post.approve = (req, res) => {
     const post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined;
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
     
-    if(req.user.role === modules.moderator || req.user.role === modules.admin) {
+    if(req.user.level === modules.moderator || req.user.level === modules.admin) {
         const approve = req.body ? req.body.value === "approve" : false;
         if(approve) modules.Post.findById(post_id).exec(function(err, post) {
             if(err) throw err;
@@ -54,9 +65,10 @@ post.approve = (req, res) => {
 };
 
 post.put = (req, res) => {
-    const post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined,
-        body = req.body ? req.body : {};
+    const post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined;
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
+    
+    let body = req.body ? req.body : {};
     
     const fieldsNotAllowed = modules.fieldsNotAllowed(allowedFields, body);
     
@@ -69,18 +81,22 @@ post.put = (req, res) => {
     if(invalidFields.length) return modules.sendError(res, {err: "Bad request. Some fields are invalid", invalid_fields: invalidFields}, 400);
     
     let modelIns;
-    if(req.user.role === modules.admin) modelIns = modules.Post.findOne({_id: post_id});
+    if(req.user.level === modules.admin) modelIns = modules.Post.findOne({_id: post_id});
     else modelIns = modules.Post.findOne({_id: post_id, user: req.user._id});
     
+    body = modules.parseArrayDuplicate(body);
     modelIns.exec(function(err, post) {
         if(err) throw err;
         if(post) {
+            let files;
             for(var key in body) {
+                if(key === "images") files = post[key];
                 post[key] = body[key];
             }
             post.save(function(err) {
                 if(err) throw err;
                 modules.sendResponse(res, post.toObject());
+                if(files) modules.deleteFiles(files);
             });
         } else modules.sendError(res, {err: "Post not found"}, 404);
     });
@@ -91,16 +107,18 @@ post.delete = (req, res) => {
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
     
     let modelIns;
-    if(req.user.role === modules.admin) modelIns = modules.Post.findOne({_id: post_id}).select("_id").lean();
+    if(req.user.level === modules.admin) modelIns = modules.Post.findOne({_id: post_id}).select("_id").lean();
     else modelIns = modules.Post.findOne({_id: post_id, user: req.user._id}).select("_id").lean();
     
     modelIns.exec(function(err, post) {
         if(err) throw err;
         if(post) {
-            if(modules.getType(post.images) === "array") modules.deleteFiles(post.images)
+            let files;
+            if(modules.getType(post.images) === "array") files = post.images;
             modules.Post.remove({_id: post._id}, function(err) {
                 if(err) throw err;
                 modules.sendResponse(res, {status: "200 OK"});
+                if(files) modules.deleteFiles(files);
             }); 
         } else modules.sendError(res, {err: "Post not found"}, 404);
     });

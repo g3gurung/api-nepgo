@@ -3,7 +3,7 @@
 const modules = require("./../modules");
 
 const user = {},
-    allowedFields = ["name", "email", "role", "phone", "city", "country", "postal", "address", "image", "sectors", "experiences", "profession", "skills", "educations", "locale", "extra_info"];
+    allowedFields = ["name", "email", "role", "phone", "city", "country", "postal", "address", "image", "sectors", "experiences", "profession", "skills", "educations", "locale", "extra_info", "level"];
 
 user.login = (req, res) => {
     if(modules.validator.isEmail(req.body.email) && req.body.password) modules.User.findOne({email: req.body.email.toLowerCase(), deleted_at: null})
@@ -74,7 +74,7 @@ user.get = (req, res) => {
 user.post = (req, res) => {
     if(req.user) return modules.sendError(res, {err: "Not allowed. Logout from the current account"}, 405);
         
-    const body = req.body ? req.body : {};
+    let body = req.body ? req.body : {};
     
     const fieldsNotAllowed = modules.fieldsNotAllowed(allowedFields, body);
     
@@ -87,6 +87,7 @@ user.post = (req, res) => {
     if(body.password !== body.confirm_password) return modules.sendError(res, {err: "Bad request. Password and Confirm password string do not match"}, 400);
         
     body.level = modules.user;
+    body = modules.parseArrayDuplicate(body);
     if(body.name && body.email && body.password) modules.User.count({email: body.email}).exec(function(err, count) {
         if(err) throw err;
         if(!count) new modules.User(body).save(function(err, user) {
@@ -111,7 +112,8 @@ user.post = (req, res) => {
 };
 
 user.put = (req, res) => {
-    const body = req.body ? req.body : {}, user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
+    let body = req.body ? req.body : {};
+    const user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
     
     if(!user_id) return modules.sendError(res, {err: "Bad request. Invalid user_id"}, 400);
      
@@ -127,6 +129,10 @@ user.put = (req, res) => {
     
     if(invalidFields.length) return modules.sendError(res, {err: "Bad request. Some fields are invalid", invalid_fields: invalidFields}, 400);
     
+    body = modules.parseArrayDuplicate(body);
+    if(body.level) {
+        if(req.user.level !== modules.admin) return modules.sendError(res, {err: "Not allowed. Only admin can update user 'level'"}, 405);   
+    }
     modules.User.findOne({_id: user_id, deleted_at: null}).exec(function(err, user) {
         if(err) throw err;
         if(user) {
@@ -158,7 +164,7 @@ user.delete = (req, res) => {
 };
 
 user.changePassword = (req, res) => {
-    const body = req.body, user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
+    let body = req.body, user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
     
     if(!user_id) return modules.sendError(res, {err: "Bad request. Invalid user_id"}, 400);
     
@@ -225,6 +231,18 @@ user.putReset = (req, res) => {
             } else modules.sendError(res, {err: "Reset not found"}, 404);
         });
     }
+};
+
+user.getPost = (req, res) => {
+    const user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
+    if(!user_id) return modules.sendError(res, {err: "Bad request. Invalid user_id"}, 400);
+    
+    if(!(req.user.level === modules.admin || req.user._id === user_id)) return modules.sendError(res, {err: "Not allowed"}, 405);
+    
+    modules.Post.find({user: user_id}).populate([{path: "user", options: {lean: true}}, {path: "likes", options: {lean: true}}, {path: "seen_by", options: {lean: true}}, {path: "comments.user", options: {lean: true}}]).lean().exec(function(err, posts) {
+        if(err) throw err;
+        module.sendResponse(res, posts);
+    });
 };
 
 module.exports = user;

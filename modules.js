@@ -15,9 +15,9 @@ function Modules() {
     this.Credential = require('./models/Credential');
     this.Post = require('./models/Post');
 
-    this.countries = [];
-    this.cities = [];
-    this.districts = [];
+    this.countries = ["Nepal"];
+    this.cities = ["Pokhara", "Kathmandu", "Butwal"];
+    this.districts = ["Kaski", "Bagmati"];
     this.roles = ["academia", "company", "experts", "organization", "volunteer"];
     this.admin = "admin";
     this.moderator = "moderator";
@@ -73,7 +73,7 @@ Modules.prototype.checkInvalidFields = function(body) {
     let invalidFields = [], self = this;
     for(var key in body) {
         switch (key) {
-            case "name" || "phone" || "postal" || "address" || "image" || "profession" || "extra_info" || "password" || "confirm_password" || "title" || "description" || "sector" || "starts_at" || "ends_at":
+            case "name" || "phone" || "postal" || "address" || "image" || "profession" || "extra_info" || "password" || "confirm_password" || "title" || "description" || "sector" || "starts_at" || "ends_at" || "text":
                 if(self.getType(body[key]) !== "string") invalidFields.push(key);
                 break;
             case "role":
@@ -82,8 +82,8 @@ Modules.prototype.checkInvalidFields = function(body) {
             case "email":
                 if(!self.validator.isEmail(body[key])) invalidFields.push(key);
                 break;
-            case "name":
-                if(self.getType(body[key]) !== "string") invalidFields.push(key);
+            case "level":
+                if(!(body[key] === self.user || body[key] === self.moderator || body[key] === self.admin)) invalidFields.push(key);
                 break;
             case "sectors":
                 if(self.getType(body[key]) === "array") body[key].forEach(function(val) {
@@ -104,9 +104,6 @@ Modules.prototype.checkInvalidFields = function(body) {
                         if(self.roles.indexOf(val) < 0) invalidFields.push(key);
                     }
                 }); else invalidFields.push(key);
-                break;
-            case "sector":
-                if(self.sectors.indexOf(body[key]) < 0) invalidFields.push(key);
                 break;
             default:
                 console.log("Invalid or not allowed fields detected, key:", key, "value:", body[key]);
@@ -185,5 +182,14 @@ Modules.prototype.deleteFiles = function(files, cb) {
     }); else if(cb) cb("Invalid files: "+JSON.stringify(files));
     else console.log("Invalid files: "+JSON.stringify(files))
 };
+
+Modules.prototype.parseArrayDuplicate = function(body) {
+    const self = this;
+    for(var key in body) {
+        if(self.getType(body[key]) === "array") body[key] = body[key].filter((v, i, a) => a.indexOf(v) === i);
+    }  
+    return body;
+};
+
 
 module.exports = new Modules();

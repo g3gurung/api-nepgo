@@ -6,7 +6,7 @@ var postSchema = new Schema({
 	updated: {type: Date, default: Date.now},
 	title: String,
 	description: String,
-	sector: String,
+	sectors: [String],
 	images: [String],
 	user: {
 	    type: Schema.ObjectId,
@@ -36,6 +36,9 @@ var postSchema = new Schema({
 	    ref: 'user',
 	    require: true
 	}],
+	country: String,
+	city: String,
+	district: String,
 	approved: {type: Boolean, default: false}
 });
 

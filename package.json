@@ -5,6 +5,7 @@
   "main": "server.js",
   "author": "Prataksha Gurung | g3prataksha@gmail.com",
   "dependencies": {
+    "aws-sdk": "^2.57.0",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.17.1",
     "cors": "^2.8.3",

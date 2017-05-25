@@ -7,7 +7,6 @@ module.exports.post = require('./post');
 module.exports.comment = require('./comment');
 
 module.exports.s3Sign = (req, res) => {
-    const s3 = new modules.aws.S3();
     const fileName = modules.mongoose.Types.ObjectId();
     const fileType = req.query['file-type'];
     const s3Params = {
@@ -18,7 +17,7 @@ module.exports.s3Sign = (req, res) => {
         ACL: 'public-read'
     };
 
-    s3.getSignedUrl('putObject', s3Params, (err, data) => {
+    modules.s3.getSignedUrl('putObject', s3Params, (err, data) => {
         if(err) throw err;
         const returnData = {
             signedRequest: data,

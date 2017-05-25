@@ -78,7 +78,7 @@ app.get('/post', middleware.soft_authenticate, api.post.get);
 app.delete('/post/:post_id', middleware.authenticate, api.post.delete);
 
 app.post('/post/:post_id/comment', middleware.authenticate, api.comment.post);
-app.put('/post/:post_id/comment/:comment_id/approve', middleware.authenticate, api.comment.approve);
+//app.put('/post/:post_id/comment/:comment_id/approve', middleware.authenticate, api.comment.approve);
 app.delete('/post/:post_id/comment/:comment_id', middleware.authenticate, api.comment.delete);
 
 app.get('/sign-s3', middleware.authenticate, api.s3Sign);

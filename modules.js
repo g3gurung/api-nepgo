@@ -8,7 +8,11 @@ function Modules() {
     this.jwt = require('jsonwebtoken');
     this.morgan = require('morgan');
     this.mongoose = require('mongoose');
-    this.aws = require('aws-sdk');
+    
+    const aws = require('aws-sdk');
+    aws.config.region = 'eu-west-1';
+    aws.config.config.update({accessKeyId: process.env.aws_access_key_id, secretAccessKey: process.env.aws_secret_access_key});
+    this.s3 = new aws.S3();
     
     //models
     this.User = require('./models/User');

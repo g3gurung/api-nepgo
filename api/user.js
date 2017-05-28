@@ -139,10 +139,15 @@ user.put = (req, res) => {
             for(var key in body) {
                 user[key] = body[key];
             }
-            user.updated = new Date();
-            user.save(function(err) {
+            modules.User.count({email: (body.email ? body.email : '')}, function(err, count) {
                 if(err) throw err;
-                modules.sendResponse(res, user.toObject());
+                if(!count) {
+                    user.updated = new Date();
+                    user.save(function(err) {
+                        if(err) throw err;
+                        modules.sendResponse(res, user.toObject());
+                    });
+                } else modules.sendError(res, {err: "Not allowed. Email is already taken"}, 405);
             });
         } else modules.sendError(res, {err: "User not found"}, 404);
     });

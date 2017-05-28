@@ -10,7 +10,7 @@ function Modules() {
     this.mongoose = require('mongoose');
     
     const aws = require('aws-sdk');
-    aws.config.config.update({accessKeyId: process.env.aws_access_key_id, secretAccessKey: process.env.aws_secret_access_key});
+    aws.config.update({accessKeyId: process.env.aws_access_key_id, secretAccessKey: process.env.aws_secret_access_key});
     this.s3 = new aws.S3();
     
     //models

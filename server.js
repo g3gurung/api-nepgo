@@ -59,6 +59,14 @@ app.get('/district', function(req, res) {
   res.json(modules.districts.sort());
 });
 
+app.get('/sector', function(req, res) {
+    res.json(modules.sectors.sort());
+});
+
+app.get('/role', function(req, res) {
+    res.json(modules.roles.sort());
+});
+
 app.post('/login', api.user.login);
 
 app.post('/user', middleware.soft_authenticate, api.user.post);

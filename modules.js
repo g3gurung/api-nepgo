@@ -10,7 +10,6 @@ function Modules() {
     this.mongoose = require('mongoose');
     
     const aws = require('aws-sdk');
-    aws.config.region = 'eu-west-1';
     aws.config.config.update({accessKeyId: process.env.aws_access_key_id, secretAccessKey: process.env.aws_secret_access_key});
     this.s3 = new aws.S3();
     
@@ -30,7 +29,7 @@ function Modules() {
     this.sectors = ["Education", "Engineering", "Health services", "Sports", "Social services"];
     this.objectIdRegex = /^[0-9a-fA-F]{24}$/;
     this.secret = "Nepgo services";
-    this.s3Bucket = "";
+    this.s3Bucket = "wantedworld.net";
 }
 
 Modules.prototype.isObjValid = function(obj, exception_keys) {
@@ -54,16 +53,17 @@ Modules.prototype.sendResponse = function(res, json_data) {
 Modules.prototype.sendError = function(res, json_error, status) {
     res.status(status).json(json_error);
 };
-
+/*
 Modules.prototype.sendImage = function(res, image) {
     if (image.key) this.s3.getObject({
-        Bucket: this.bucket,
+        Bucket: this.s3Bucket,
         Key: image.key
     }).createReadStream().pipe(res);
     else res.status(400).json({
         err: "Bad request!"
     });
 };
+*/
 
 Modules.prototype.fieldsNotAllowed = function(allowedKeys, body) {
     let notAllowed = [];

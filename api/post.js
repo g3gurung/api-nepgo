@@ -8,11 +8,11 @@ const post = {},
 post.get = (req, res) => {
     let modelIns, query = {approved: true};
     
-    if(req.query.role) query.roles = req.query.role;
-    if(req.query.sector) query.sectors =  req.query.sector;
-    if(req.query.country) query.country = req.query.country;
-    if(req.query.city) query.city = req.query.city;
-    if(req.query.district) query.district = req.query.district;
+    if(modules.roles.indexOf(req.query.role) > -1) query.roles = req.query.role;
+    if(modules.sectors.indexOf(req.query.sector) > -1) query.sectors = req.query.sector;
+    if(modules.countries.indexOf(req.query.country) > -1) query.country = req.query.country;
+    if(modules.cities.indexOf(req.query.city) > -1) query.city = req.query.city;
+    if(modules.districts.indexOf(req.query.district) > -1) query.district = req.query.district;
     
     if(!(query.roles || query.sectors)) return modules.sendError(res, {err: "Bad request. 'role' or/and 'sector' is needed"}, 400);
     

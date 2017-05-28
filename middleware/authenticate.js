@@ -3,7 +3,7 @@
 const modules = require('./../modules')
 
 module.exports = (req, res, next) => {
-    let token = req.body.token || req.query.token || req.headers['x-access-token'] || req.signedCookies.token;
+    let token = req.body.token || req.query.token || req.headers['x-access-token'];
     if (token) {
         token = token.replace(/ /g, '+');
         modules.jwt.verify(token, modules.secret, function(err, decoded) {

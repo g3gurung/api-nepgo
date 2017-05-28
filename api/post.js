@@ -39,14 +39,14 @@ post.post = (req, res) => {
     
     body.user = req.user._id;
     body = modules.parseArrayDuplicate(body);
-    if(body.description) new modules.Post(body).save(function(err, post) {
+    if(body.description && body.roles) new modules.Post(body).save(function(err, post) {
         if(err) throw err;
         modules.sendResponse(res, post.toObject());
     }); else modules.sendError(res, {err: "Mandatory fields are missing"}, 400);
 };
 
 post.approve = (req, res) => {
-    const post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined;
+    const post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
     
     if(req.user.level === modules.moderator || req.user.level === modules.admin) {
@@ -65,7 +65,7 @@ post.approve = (req, res) => {
 };
 
 post.put = (req, res) => {
-    const post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined;
+    const post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
     
     let body = req.body ? req.body : {};
@@ -93,6 +93,7 @@ post.put = (req, res) => {
                 if(key === "images") files = post[key];
                 post[key] = body[key];
             }
+            post.updated = new Date();
             post.save(function(err) {
                 if(err) throw err;
                 modules.sendResponse(res, post.toObject());
@@ -103,7 +104,7 @@ post.put = (req, res) => {
 };
 
 post.delete = (req, res) => {
-    const post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined;
+    const post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
     
     let modelIns;
@@ -124,5 +125,30 @@ post.delete = (req, res) => {
     });
 };
 
+post.like = (req, res) => {    
+    const post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;
+    if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
+    
+    modules.Post.findById(post_id).select("_id").lean().exec(function(err, post) {
+        if(err) throw err;
+        if(post) modules.Post.findOneAndUpdate({_id: post._id}, {$addToSet: { likes: req.user._id } }, function(err) {
+            if(err) throw err;
+            modules.sendResponse(res, {status: "200 OK"});
+        }); else modules.sendError(res, {err: "Post not found"}, 404);
+    });
+};
+
+post.seen = (req, res) => {
+    const post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;
+    if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
+    
+    modules.Post.findById(post_id).select("_id").lean().exec(function(err, post) {
+        if(err) throw err;
+        if(post) modules.Post.findOneAndUpdate({_id: post._id}, {$addToSet: { seen_by: req.user._id } }, function(err) {
+            if(err) throw err;
+            modules.sendResponse(res, {status: "200 OK"});
+        }); else modules.sendError(res, {err: "Post not found"}, 404);
+    });
+};
 
 module.exports = post;

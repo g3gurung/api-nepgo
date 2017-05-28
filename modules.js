@@ -77,7 +77,21 @@ Modules.prototype.checkInvalidFields = function(body) {
     let invalidFields = [], self = this;
     for(var key in body) {
         switch (key) {
-            case "name" || "phone" || "postal" || "address" || "image" || "profession" || "extra_info" || "password" || "confirm_password" || "title" || "description" || "sector" || "starts_at" || "ends_at" || "text":
+            case "name":
+            case "phone":
+            case "postal":
+            case "address":
+            case "image":
+            case "profession":
+            case "extra_info":
+            case "password":
+            case "confirm_password":
+            case "title":
+            case "description":
+            case "sector":
+            case "starts_at":
+            case "ends_at":
+            case "text":
                 if(self.getType(body[key]) !== "string") invalidFields.push(key);
                 break;
             case "role":
@@ -96,7 +110,10 @@ Modules.prototype.checkInvalidFields = function(body) {
                     }
                 }); else invalidFields.push(key);
                 break;
-            case "experiences" || "skills" || "educations" || "images":
+            case "experiences":
+            case "skills":
+            case "educations":
+            case "images":
                 if(self.getType(body[key]) !== "array") invalidFields.push(key);
                 break;
             case "locale":
@@ -108,6 +125,15 @@ Modules.prototype.checkInvalidFields = function(body) {
                         if(self.roles.indexOf(val) < 0) invalidFields.push(key);
                     }
                 }); else invalidFields.push(key);
+                break;
+            case "country":
+                if(self.countries.indexOf(body[key]) < 0) invalidFields.push(key);
+                break;
+            case "city":
+                if(self.cities.indexOf(body[key]) < 0) invalidFields.push(key);
+                break;
+            case "district":
+                if(self.districts.indexOf(body[key]) < 0) invalidFields.push(key);
                 break;
             default:
                 console.log("Invalid or not allowed fields detected, key:", key, "value:", body[key]);

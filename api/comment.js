@@ -6,7 +6,7 @@ const comment = {},
     allowedFields = ["text"];
     
 comment.post = (req, res) => {
-    const body = req.body ? req.body : {}, post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined;
+    const body = req.body ? req.body : {}, post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
     
     const fieldsNotAllowed = modules.fieldsNotAllowed(allowedFields, body);
@@ -36,8 +36,8 @@ comment.post = (req, res) => {
 };
 
 comment.delete = (req, res) => {
-    const post_id = modules.objectIdRegex.match(req.params.post_id) ? req.params.post_id : undefined;
-    const comment_id = modules.objectIdRegex.match(req.params.comment_id) ? req.params.comment_id : undefined;
+    const post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;
+    const comment_id = req.params.comment_id.match(modules.objectIdRegex) ? req.params.comment_id : undefined;
     if(!post_id) return modules.sendError(res, {err: "Invalid post_id"}, 400);
     if(!comment_id) return modules.sendError(res, {err: "Invalid comment_id"}, 400);
     

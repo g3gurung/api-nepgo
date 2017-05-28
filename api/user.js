@@ -3,7 +3,7 @@
 const modules = require("./../modules");
 
 const user = {},
-    allowedFields = ["name", "email", "role", "phone", "city", "country", "postal", "address", "image", "sectors", "experiences", "profession", "skills", "educations", "locale", "extra_info", "level"];
+    allowedFields = ["name", "email", "role", "phone", "city", "country", "postal", "address", "image", "sectors", "experiences", "profession", "skills", "educations", "locale", "extra_info", "level", "password", "confirm_password"];
 
 user.login = (req, res) => {
     if(modules.validator.isEmail(req.body.email) && req.body.password) modules.User.findOne({email: req.body.email.toLowerCase(), deleted_at: null})
@@ -113,7 +113,7 @@ user.post = (req, res) => {
 
 user.put = (req, res) => {
     let body = req.body ? req.body : {};
-    const user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
+    const user_id = req.params.user_id.match(modules.objectIdRegex) ? req.params.user_id : undefined;
     
     if(!user_id) return modules.sendError(res, {err: "Bad request. Invalid user_id"}, 400);
      
@@ -139,6 +139,7 @@ user.put = (req, res) => {
             for(var key in body) {
                 user[key] = body[key];
             }
+            user.updated = new Date();
             user.save(function(err) {
                 if(err) throw err;
                 modules.sendResponse(res, user.toObject());
@@ -148,7 +149,7 @@ user.put = (req, res) => {
 };
 
 user.delete = (req, res) => {
-    const user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
+    const user_id = req.params.user_id.match(modules.objectIdRegex) ? req.params.user_id : undefined;
     
     if(!user_id) return modules.sendError(res, {err: "Bad request. Invalid user_id"}, 400);
     
@@ -164,7 +165,7 @@ user.delete = (req, res) => {
 };
 
 user.changePassword = (req, res) => {
-    let body = req.body, user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
+    let body = req.body, user_id = req.params.user_id.match(modules.objectIdRegex) ? req.params.user_id : undefined;
     
     if(!user_id) return modules.sendError(res, {err: "Bad request. Invalid user_id"}, 400);
     
@@ -205,7 +206,7 @@ user.getReset = (req, res) => {
 };
 
 user.putReset = (req, res) => {
-    const reset_id = modules.objectIdRegex.match(req.params.reset_id) ? req.params.reset_id : undefined;
+    const reset_id = req.params.reset_id.match(modules.objectIdRegex) ? req.params.reset_id : undefined;
     
     if(reset_id) {
         let reset_date = new Date(parseInt(reset_id.substring(0, 8), 16) * 1000).getTime();
@@ -234,7 +235,7 @@ user.putReset = (req, res) => {
 };
 
 user.getPost = (req, res) => {
-    const user_id = modules.objectIdRegex.match(req.params.user_id) ? req.params.user_id : undefined;
+    const user_id = req.params.user_id.match(modules.objectIdRegex) ? req.params.user_id : undefined;
     if(!user_id) return modules.sendError(res, {err: "Bad request. Invalid user_id"}, 400);
     
     if(!(req.user.level === modules.admin || req.user._id === user_id)) return modules.sendError(res, {err: "Not allowed"}, 405);

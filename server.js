@@ -76,6 +76,8 @@ app.put('/post/:post_id/approve', middleware.authenticate, api.post.approve);
 app.get('/post', middleware.soft_authenticate, api.post.get);
 //app.put('/post/:post_id', middleware.authenticate, api.post.put);
 app.delete('/post/:post_id', middleware.authenticate, api.post.delete);
+app.get('/post/:post_id/like', middleware.authenticate, api.post.like);
+app.get('/post/:post_id/seen', middleware.authenticate, api.post.seen);
 
 app.post('/post/:post_id/comment', middleware.authenticate, api.comment.post);
 //app.put('/post/:post_id/comment/:comment_id/approve', middleware.authenticate, api.comment.approve);

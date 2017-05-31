@@ -1,9 +1,9 @@
 'use strict'
 const express = require('express'),
-    app = express(),
-    cors = require('cors'),
-    mongoose = require('mongoose'),
-    bodyParser = require('body-parser');
+  app = express(),
+  cors = require('cors'),
+  mongoose = require('mongoose'),
+  bodyParser = require('body-parser');
 
 require('dotenv').config(); //loads env variables
 
@@ -33,8 +33,8 @@ if (process.env.MONGODB_URI) mongoose.connect(process.env.MONGODB_URI, options).
 else throw new Error("No MONGODB_URI provided");
 
 const modules = require('./modules'),
-    api = require('./api'),
-    middleware = require('./middleware');
+  api = require('./api'),
+  middleware = require('./middleware');
 
 app.use(cors());
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -60,11 +60,11 @@ app.get('/district', function(req, res) {
 });
 
 app.get('/sector', function(req, res) {
-    res.json(modules.sectors.sort());
+  res.json(modules.sectors.sort());
 });
 
 app.get('/role', function(req, res) {
-    res.json(modules.roles.sort());
+  res.json(modules.roles.sort());
 });
 
 app.post('/login', api.user.login);
@@ -94,15 +94,16 @@ app.delete('/post/:post_id/comment/:comment_id', middleware.authenticate, api.co
 app.get('/sign-s3', middleware.authenticate, api.s3Sign);
 
 app.get('/health', function(req, res) {
-    if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2) modules.User.findOne().select('_id').lean().exec(function(err, user) {
-        if (err) {console.log("error", JSON.stringify(err)); return modules.sendError(res, {
-                err: "server error"
-            }, 500);}
-        res.json({
-            status: "200 OK"
-        });
+  if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2) modules.User.findOne().select('_id').lean().exec(function(err, user) {
+    if (err) {
+      console.log("error", JSON.stringify(err));
+      return res.status(500).end("Health check failed");
+    }
+    res.json({
+      status: "200 OK"
     });
-    else res.status(500).end("Health check failed");
+  });
+  else res.status(500).end("Health check failed");
 });
 
 app.listen(app.get('port'), function() {

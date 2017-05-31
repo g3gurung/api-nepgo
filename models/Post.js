@@ -8,6 +8,7 @@ var postSchema = new Schema({
 	description: String,
 	sectors: [String],
 	images: [String],
+	video: String,
 	user: {
 	    type: Schema.ObjectId,
 	    ref: 'user',

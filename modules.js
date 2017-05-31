@@ -92,6 +92,7 @@ Modules.prototype.checkInvalidFields = function(body) {
             case "starts_at":
             case "ends_at":
             case "text":
+            case "video":
                 if(self.getType(body[key]) !== "string") invalidFields.push(key);
                 break;
             case "role":

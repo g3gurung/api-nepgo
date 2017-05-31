@@ -95,4 +95,8 @@ app.get('/sign-s3', middleware.authenticate, api.s3Sign);
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
+  var http = require("http");
+  setInterval(function() {
+    http.get("http://api-nepgo.herokuapp.com/");
+  }, 300000);
 });

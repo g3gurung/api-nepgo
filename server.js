@@ -93,10 +93,22 @@ app.delete('/post/:post_id/comment/:comment_id', middleware.authenticate, api.co
 
 app.get('/sign-s3', middleware.authenticate, api.s3Sign);
 
+app.get('/health', function(req, res) {
+    if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2) modules.User.findOne().select('_id').lean().exec(function(err, user) {
+        if (err) {console.log("error", JSON.stringify(err)); return modules.sendError(res, {
+                err: "server error"
+            }, 500);}
+        res.json({
+            status: "200 OK"
+        });
+    });
+    else res.status(500).end("Health check failed");
+});
+
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
   var http = require("http");
   setInterval(function() {
-    http.get("http://api-nepgo.herokuapp.com/");
+    http.get("http://api-nepgo.herokuapp.com/health");
   }, 300000);
 });

@@ -3,7 +3,7 @@
 const modules = require("./../modules");
 
 const post = {},
-    allowedFields = ["title", "description", "sector", "starts_at", "ends_at", "roles", "images", "country", "city", "district", "video"];
+    allowedFields = ["title", "description", "sectors", "starts_at", "ends_at", "roles", "images", "country", "city", "district", "video"];
 
 post.get = (req, res) => {
     let modelIns, query = {approved: true};

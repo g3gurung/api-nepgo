@@ -6,7 +6,7 @@ const post = {},
     allowedFields = ["title", "description", "sectors", "starts_at", "ends_at", "roles", "images", "country", "city", "district", "video"];
 
 post.get = (req, res) => {
-    let modelIns, query = {approved: true};
+    let modelIns, query = {};//{approved: true};
     
     if(modules.roles.indexOf(req.query.role) > -1) query.roles = req.query.role;
     if(modules.sectors.indexOf(req.query.sector) > -1) query.sectors = req.query.sector;

@@ -6,7 +6,7 @@ var postSchema = new Schema({
 	updated: {type: Date, default: Date.now},
 	title: String,
 	description: String,
-	sectors: [String],
+	sector: String,
 	images: [String],
 	video: String,
 	user: {
@@ -24,14 +24,14 @@ var postSchema = new Schema({
 		},
 		text: String,
 		created_at: {type: Date, default: Date.now},
-		approved: {type: Boolean, default: false}
+		approved: {type: Boolean, default: true}
 	}],
 	likes: [{
 		type: Schema.ObjectId,
 	    ref: 'user',
 	    require: true
 	}],
-	roles: [String],
+	role: String,
 	seen_by: [{
 	    type: Schema.ObjectId,
 	    ref: 'user',

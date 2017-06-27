@@ -88,7 +88,6 @@ Modules.prototype.checkInvalidFields = function(body) {
             case "confirm_password":
             case "title":
             case "description":
-            case "sector":
             case "starts_at":
             case "ends_at":
             case "text":
@@ -104,12 +103,8 @@ Modules.prototype.checkInvalidFields = function(body) {
             case "level":
                 if(!(body[key] === self.user || body[key] === self.moderator || body[key] === self.admin)) invalidFields.push(key);
                 break;
-            case "sectors":
-                if(self.getType(body[key]) === "array") body[key].forEach(function(val) {
-                    if(invalidFields.indexOf(key) < 0) {
-                        if(self.sectors.indexOf(val) < 0) invalidFields.push(key);
-                    }
-                }); else invalidFields.push(key);
+            case "sector":
+                if(self.sectors.indexOf(body[key]) < 0) invalidFields.push(key);
                 break;
             case "experiences":
             case "skills":
@@ -119,13 +114,6 @@ Modules.prototype.checkInvalidFields = function(body) {
                 break;
             case "locale":
                 if(self.locales.indexOf(body[key]) < 0) invalidFields.push(key);
-                break;
-            case "roles":
-                if(self.getType(body[key]) === "array") body[key].forEach(function(val) {
-                    if(invalidFields.indexOf(key) < 0) {
-                        if(self.roles.indexOf(val) < 0) invalidFields.push(key);
-                    }
-                }); else invalidFields.push(key);
                 break;
             case "country":
                 if(self.countries.indexOf(body[key]) < 0) invalidFields.push(key);

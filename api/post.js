@@ -3,13 +3,13 @@
 const modules = require("./../modules");
 
 const post = {},
-    allowedFields = ["title", "description", "sectors", "starts_at", "ends_at", "roles", "images", "country", "city", "district", "video"];
+    allowedFields = ["title", "description", "sector", "starts_at", "ends_at", "role", "images", "country", "city", "district", "video"];
 
 post.get = (req, res) => {
     let modelIns, query = {};//{approved: true};
     
-    if(modules.roles.indexOf(req.query.role) > -1) query.roles = req.query.role;
-    if(modules.sectors.indexOf(req.query.sector) > -1) query.sectors = req.query.sector;
+    if(modules.roles.indexOf(req.query.role) > -1) query.role = req.query.role;
+    if(modules.sectors.indexOf(req.query.sector) > -1) query.sector = req.query.sector;
     if(modules.countries.indexOf(req.query.country) > -1) query.country = req.query.country;
     if(modules.cities.indexOf(req.query.city) > -1) query.city = req.query.city;
     if(modules.districts.indexOf(req.query.district) > -1) query.district = req.query.district;

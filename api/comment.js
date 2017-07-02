@@ -3,7 +3,7 @@
 const modules = require("./../modules");
 
 const comment = {},
-    allowedFields = ["text"];
+    allowedFields = ["text", "role"];
     
 comment.post = (req, res) => {
     const body = req.body ? req.body : {}, post_id = req.params.post_id.match(modules.objectIdRegex) ? req.params.post_id : undefined;

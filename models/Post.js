@@ -23,6 +23,7 @@ var postSchema = new Schema({
 		    require: true
 		},
 		text: String,
+		role: String,
 		created_at: {type: Date, default: Date.now},
 		approved: {type: Boolean, default: true}
 	}],

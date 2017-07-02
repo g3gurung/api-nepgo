@@ -7,7 +7,7 @@ var userSchema = new Schema({
 	deleted_at: Date,
 	
 	name: {type: String, required: true},
-	role: {type: String},
+	role: [String],
 	email: {type: String, unique: true, required: true},
 	phone: String,
 	country: String,

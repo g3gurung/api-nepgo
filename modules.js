@@ -97,6 +97,16 @@ Modules.prototype.checkInvalidFields = function(body) {
             case "role":
                 if(self.roles.indexOf(body[key]) < 0) invalidFields.push(key);
                 break;
+            case "roles":
+                if(self.getType(body[key]) !== "array") {
+                    if(body[key].length) for(let i=0; i<body[key].length; i++) {
+                        if(self.roles.indexOf(body[key][0]) < 0) {
+                            invalidFields.push(key);
+                            break;
+                        }
+                    } else invalidFields.push(key);
+                } else invalidFields.push(key);
+                break;
             case "email":
                 if(!self.validator.isEmail(body[key])) invalidFields.push(key);
                 break;
@@ -105,6 +115,16 @@ Modules.prototype.checkInvalidFields = function(body) {
                 break;
             case "sector":
                 if(self.sectors.indexOf(body[key]) < 0) invalidFields.push(key);
+                break;
+            case "sectors":
+                if(self.getType(body[key]) !== "array") {
+                    if(body[key].length) for(let i=0; i<body[key].length; i++) {
+                        if(self.sectors.indexOf(body[key][0]) < 0) {
+                            invalidFields.push(key);
+                            break;
+                        }
+                    } else invalidFields.push(key);
+                } else invalidFields.push(key);
                 break;
             case "experiences":
             case "skills":

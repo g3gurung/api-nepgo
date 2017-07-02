@@ -3,7 +3,7 @@
 const modules = require("./../modules");
 
 const user = {},
-    allowedFields = ["name", "email", "role", "phone", "city", "country", "postal", "address", "image", "sectors", "experiences", "profession", "skills", "educations", "locale", "extra_info", "level", "password", "confirm_password"];
+    allowedFields = ["name", "email", "roles", "phone", "city", "country", "postal", "address", "image", "sectors", "experiences", "profession", "skills", "educations", "locale", "extra_info", "level", "password", "confirm_password"];
 
 user.login = (req, res) => {
     if(modules.validator.isEmail(req.body.email) && req.body.password) modules.User.findOne({email: req.body.email.toLowerCase(), deleted_at: null})
@@ -38,7 +38,7 @@ user.login = (req, res) => {
 
 user.get = (req, res) => {
     const queryString = {
-        role: req.query.role,
+        roles: req.query.role,
         sectors: req.query.sector,
         country: req.query.country,
         city: req.query.city,

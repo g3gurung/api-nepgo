@@ -49,7 +49,7 @@ comment.delete = (req, res) => {
             let postOwner = post.user.toString(), commentOwner, query;
             if(modules.getType(post.comments) === "array") for(let i=0, total=post.comments.length; i<total; i++) {
                 if(post.comments[i]._id.toString() === comment_id) {
-                    commentOwner = comment.user.toString();
+                    commentOwner = post.comments[i].user.toString();
                     break;
                 }
             };

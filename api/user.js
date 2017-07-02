@@ -65,7 +65,7 @@ user.get = (req, res) => {
     
     let find;
     if(req.user) find = modules.User.find(query).lean();
-    else find = modules.User.find().select('name image country city district sectors roles educations skills profession').lean();
+    else find = modules.User.find(query).select('name image country city district sectors roles educations skills profession').lean();
     
     find.exec(function(err, users) {
         if(err) throw err;

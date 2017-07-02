@@ -37,6 +37,7 @@ user.login = (req, res) => {
 };
 
 user.get = (req, res) => {
+    
     const queryString = {
         roles: req.query.role,
         sectors: req.query.sector,
@@ -44,10 +45,22 @@ user.get = (req, res) => {
         city: req.query.city,
         district: req.query.district,
         email: req.query.email,
-        _id: req.query.ids ? {$in: req.query.ids} : undefined,
         skills: req.query.skill,
         profession: req.query.profession
     };
+    
+    if (req.query.ids) {
+        let ids = req.query.ids.split(",");
+        if(ids.length) {
+            for(let i=0; i<ids.length; i++) {
+                ids[i] = ids[i].trim();
+                if(!ids[i].match(modules.objectIdRegex)) {
+                    return modules.sendError(res, {err: "Bad request. Invalid ids query string"}, 400);
+                }
+            }
+            queryString._id = {$or: ids}
+        }
+    }
     
     const query = {deleted_at: null};
     

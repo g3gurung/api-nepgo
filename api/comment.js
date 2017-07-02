@@ -18,7 +18,7 @@ comment.post = (req, res) => {
     if(invalidFields.length) return modules.sendError(res, {err: "Bad request. Some fields are invalid", invalid_fields: invalidFields}, 400);
     
     body.user = req.user._id;
-    if(body.text) modules.Post.findOne({_id: post_id /*, approved: true*/}).exec(function(err, post) {
+    if(body.text && body.role) modules.Post.findOne({_id: post_id /*, approved: true*/}).exec(function(err, post) {
         if(err) throw err;
         if(post) {
             let setter;

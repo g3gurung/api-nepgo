@@ -100,7 +100,7 @@ Modules.prototype.checkInvalidFields = function(body) {
             case "roles":
                 if(self.getType(body[key]) !== "array") {
                     if(body[key].length) for(let i=0; i<body[key].length; i++) {
-                        if(self.roles.indexOf(body[key][0]) < 0) {
+                        if(self.roles.indexOf(body[key][i]) < 0) {
                             invalidFields.push(key);
                             break;
                         }
@@ -119,7 +119,7 @@ Modules.prototype.checkInvalidFields = function(body) {
             case "sectors":
                 if(self.getType(body[key]) !== "array") {
                     if(body[key].length) for(let i=0; i<body[key].length; i++) {
-                        if(self.sectors.indexOf(body[key][0]) < 0) {
+                        if(self.sectors.indexOf(body[key][i]) < 0) {
                             invalidFields.push(key);
                             break;
                         }

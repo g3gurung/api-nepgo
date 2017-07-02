@@ -18,20 +18,22 @@ comment.post = (req, res) => {
     if(invalidFields.length) return modules.sendError(res, {err: "Bad request. Some fields are invalid", invalid_fields: invalidFields}, 400);
     
     body.user = req.user._id;
-    if(body.text) modules.Post.findOne({_id: post_id, approved: true}).exec(function(err, post) {
+    if(body.text) modules.Post.findOne({_id: post_id /*, approved: true*/}).exec(function(err, post) {
         if(err) throw err;
-        let setter;
-        if(modules.getType(post.comments) === "array") setter = {$push: {comments: body}}; 
-        else setter = {$set: {comments: [body]}}; 
-        modules.findOneAndUpdate({_id: post._id}, setter, {new: true}, function(err, post) {
-            if(err) throw err;
-            body._id = post.comments.pop()._id.toString();
-            modules.User.findById(body.user).lean().exec(function(err, user) {
+        if(post) {
+            let setter;
+            if(modules.getType(post.comments) === "array") setter = {$push: {comments: body}}; 
+            else setter = {$set: {comments: [body]}}; 
+            modules.findOneAndUpdate({_id: post._id}, setter, {new: true}, function(err, post) {
                 if(err) throw err;
-                body.user = user;
-                modules.sendResponse(res, body);
-            });
-        });        
+                body._id = post.comments.pop()._id.toString();
+                modules.User.findById(body.user).lean().exec(function(err, user) {
+                    if(err) throw err;
+                    body.user = user;
+                    modules.sendResponse(res, body);
+                });
+            }); 
+        } else modules.sendError(res, {err: "Post not found"}, 404);
     }); else modules.sendError(res, {err: "Mandatory fields are missing"}, 400);
 };
 

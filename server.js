@@ -82,7 +82,7 @@ app.put('/reset/:reset_id', api.user.putReset);
 app.post('/post', middleware.authenticate, api.post.post);
 app.put('/post/:post_id/approve', middleware.authenticate, api.post.approve);
 app.get('/post', middleware.soft_authenticate, api.post.get);
-//app.put('/post/:post_id', middleware.authenticate, api.post.put);
+app.put('/post/:post_id', middleware.authenticate, api.post.put);
 app.delete('/post/:post_id', middleware.authenticate, api.post.delete);
 app.put('/post/:post_id/like', middleware.authenticate, api.post.like);
 app.put('/post/:post_id/seen', middleware.authenticate, api.post.seen);

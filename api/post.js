@@ -14,11 +14,11 @@ post.get = (req, res) => {
     if(modules.cities.indexOf(req.query.city) > -1) query.city = req.query.city;
     if(modules.districts.indexOf(req.query.district) > -1) query.district = req.query.district;
     
-    if(!(query.roles || query.sectors)) return modules.sendError(res, {err: "Bad request. 'role' or/and 'sector' is needed"}, 400);
+    if(!(query.role || query.sector)) return modules.sendError(res, {err: "Bad request. 'role' or/and 'sector' is needed"}, 400);
     
     modelIns = modules.Post.find(query);
     if(req.user) modelIns = modelIns.populate([{path: "user", options: {lean: true}}, {path: "likes", options: {lean: true}}, {path: "seen_by", options: {lean: true}}, {path: "comments.user", options: {lean: true}}]).sort({created_at: -1}).lean()
-    else modelIns = modelIns.populate([{path: "user", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "likes", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "seen_by", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}, {path: "comments.user", options: {lean: true}, select: "name image country city district sectors roles educations skills profession"}]).sort({created_at: -1}).lean()
+    else modelIns = modelIns.populate([{path: "user", options: {lean: true}, select: "name image country city district sector role educations skills profession"}, {path: "likes", options: {lean: true}, select: "name image country city district sector role educations skills profession"}, {path: "seen_by", options: {lean: true}, select: "name image country city district sector role educations skills profession"}, {path: "comments.user", options: {lean: true}, select: "name image country city district sector role educations skills profession"}]).sort({created_at: -1}).lean()
 
     modelIns.exec(function(err, posts) {
         if(err) throw err; 

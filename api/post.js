@@ -39,7 +39,7 @@ post.post = (req, res) => {
     
     body.user = req.user._id;
     body = modules.parseArrayDuplicate(body);
-    if(body.description && body.roles) new modules.Post(body).save(function(err, post) {
+    if(body.description && body.role && body.sector) new modules.Post(body).save(function(err, post) {
         if(err) throw err;
         modules.sendResponse(res, post.toObject());
     }); else modules.sendError(res, {err: "Mandatory fields are missing"}, 400);

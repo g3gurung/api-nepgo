@@ -49,17 +49,18 @@ user.get = (req, res) => {
         profession: req.query.profession
     };
     
-    const query = {$or: [], deleted_at: null};
+    const query = {deleted_at: null};
     
     for(var key in queryString) {
         if(queryString[key]) {
             const elem = {};
             elem[key] = queryString[key];
-            query.$or.push(elem);
+            if(query.$or) query.$or.push(elem);
+            else query.$or = [elem];
         };
     }
     
-    if(query.$or.length === 0 && !req.user) return modules.sendError(res, {err: "Not allowed. Either login or provide query strings"}, 405);
+    if(!query.$or && !req.user) return modules.sendError(res, {err: "Not allowed. Either login or provide query strings"}, 405);
     
     let find;
     if(req.user) find = modules.User.find(query).lean();

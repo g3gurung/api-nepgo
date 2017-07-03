@@ -9,9 +9,10 @@ module.exports.comment = require('./comment');
 module.exports.s3Sign = (req, res) => {
     const fileName = modules.mongoose.Types.ObjectId();
     const fileType = req.query['file-type'];
+    if(!fileType) return modules.sendError(res, {err: "Invalid query stirng-> file-type"}, 400);
     const s3Params = {
         Bucket: modules.s3Bucket,
-        Key: fileName,
+        Key: fileName.toString(),
         Expires: 60,
         ContentType: fileType,
         ACL: 'public-read'

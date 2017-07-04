@@ -29,7 +29,7 @@ function Modules() {
     this.sectors = ["Education", "Engineering", "Health services", "Sports", "Social services"];
     this.objectIdRegex = /^[0-9a-fA-F]{24}$/;
     this.secret = "Nepgo services";
-    this.s3Bucket = "api-nepgo";
+    this.s3Bucket = "test-prata";
 }
 
 Modules.prototype.isObjValid = function(obj, exception_keys) {

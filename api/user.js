@@ -14,7 +14,7 @@ user.login = (req, res) => {
             if(credential) modules.checkPassword(credential, req.body.password, function(err, result) {
                 if(err) {
                     console.log("Login, Password check error:", JSON.stringify(err));
-                    modules.sendError(res, {err: "Incorrect email/password"}, 403);
+                    return modules.sendError(res, {err: "Incorrect email/password"}, 403);
                 }
                 if(result) {
                     user.seen_by = new Date();

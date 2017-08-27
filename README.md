@@ -1,3 +1,3 @@
 # api-nepgo
 
-## Base URI: http://api-nepgo.herokuapp.com/
+## Base URI: https://api-nepgo.herokuapp.com/

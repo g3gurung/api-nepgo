@@ -108,8 +108,8 @@ user.post = (req, res) => {
                     });
                 });
             });
-        }); else module.sendError(res, {err: "User already exists with the given email"}, 400);
-    }); else module.sendError(res, {err: "Mandatory fields are missing", mandatory_fields: ["name", "email", "password", "confirm_password"]}, 400);
+        }); else modules.sendError(res, {err: "User already exists with the given email"}, 400);
+    }); else modules.sendError(res, {err: "Mandatory fields are missing", mandatory_fields: ["name", "email", "password", "confirm_password"]}, 400);
            
 };
 
@@ -249,7 +249,7 @@ user.getPost = (req, res) => {
     
     modules.Post.find({user: user_id}).populate([{path: "user", options: {lean: true}}, {path: "likes", options: {lean: true}}, {path: "seen_by", options: {lean: true}}, {path: "comments.user", options: {lean: true}}]).lean().exec(function(err, posts) {
         if(err) throw err;
-        module.sendResponse(res, posts);
+        modules.sendResponse(res, posts);
     });
 };
 
